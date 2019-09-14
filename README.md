@@ -65,7 +65,7 @@ CONFIGURING BACKUP (Docker official)
 Configuring MASTER (latest v1.3.2)
   - Create keepalived.conf in /etc/keepalived/
   - See below for general configuration (and sample keepalived_master.conf):
-  ```
+```
 global_defs {
   router_id yourhostname
   script_user root root #enable this if you don't want to create new user like manual wants
@@ -97,10 +97,10 @@ vrrp_instance VI_1 {
 
   notify /etc/keepalived/notify_script.sh
 }
-  ```
+```
   - Multicast can be tricky, so you may use unicast definitions like above to resolve issues. It is possible to adjust some variables like interval and script (to check if Pi-hole is down some different way). 
   - Create your notify script like this (and see notify_script.sh):
-  ```
+```
   #!/bin/bash
 
 TYPE=$1
@@ -121,6 +121,7 @@ case $STATE in
                   exit 1
                   ;;
 esac
-  ```
-  - There is not much to change here. When state changes, Pi-hole DNS requires restart to start handling queries, it seems. You may find a better/faster way to hangle this.
+```
+  - There is not much to change here. When state changes, Pi-hole DNS requires restart to start handling queries, it seems. You may find a better/faster way to hangle this
+  -
   
