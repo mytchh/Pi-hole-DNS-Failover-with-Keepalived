@@ -51,3 +51,5 @@ CONFIGURING BACKUP (Docker official)
   - Make sure everything is working still
   
 # Keepalived Setup:
+Configuring MASTER (latest v1.3.2)
+
