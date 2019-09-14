@@ -36,20 +36,63 @@ CONFIGURING MASTER (Raspbian Official)
   - Make any other changes in setupVars.conf you might want since installation
   - Edit /etc/dnsmasq.d/02-pihole-dhcp.conf and add dhcp-option=option:dns-server,192.168.0.111,192.168.0.105 #your VIP,your BACKUP IP
   - Alternatively , you can add a new file like 99-second-dns.conf with the same line dhcp-option=option:dns-server,192.168.0.111,192.168.0.105
-  - execute$ pihole restartdns
+  - Execute:
+  ```
+  pihole restartdns
+  ```
   - Make sure everything is working still
   
 CONFIGURING BACKUP (Docker official)
-  - If not installed, you may be able to try this: docker run -d --name yourcontainername -p 53:53/tcp -p 53:53/udp -p 80:80 -p 443:443 -e TZ="America/Chicago" -e WEBPASSWORD=yourpassword -v "/local/pihole/path/:/etc/pihole/" -v "/local/dnsmasq.d/path/:/etc/dnsmasq.d/" --dns=127.0.0.1 --dns=1.1.1.1 --cap-add NET_ADMIN --restart=unless-stopped pihole/pihole:latest
+  - If not installed, you may be able to try this: 
+  ```
+  docker run -d --name yourcontainername -p 53:53/tcp -p 53:53/udp -p 80:80 -p 443:443 -e TZ="America/Chicago" -e WEBPASSWORD=yourpassword -v "/local/pihole/path/:/etc/pihole/" -v "/local/dnsmasq.d/path/:/etc/dnsmasq.d/" --dns=127.0.0.1 --dns=1.1.1.1 --cap-add NET_ADMIN --restart=unless-stopped pihole/pihole:latest
+  ```
   - Replaced with your container name, password, and local volume paths. Should leave first DNS as 127.0.0.1, should not need any other ports, but may add extra flags as you wish
   - With Pi-hole installed, configure your preferred upstream DNS servers (eg 1.1.1.1, 8.8.8.8, etc). Passwords should be same between servers for general ease of use
   - Enable listen on all interfaces, permit all origins
   - Check that server is functional in standalone
   - Edit /etc/pihole/setupVars.conf so IPV4_ADDRESS=192.168.0.111 #your VIP
   - Make any other changes in setupVars.conf you might want since installation
-  - execute$ pihole restartdns (or like docker exec yourcontainername pihole restartdns)
+  - Execute:
+  ```
+  pihole restartdns (or like docker exec yourcontainername pihole restartdns)
+  ```
   - Make sure everything is working still
   
 # Keepalived Setup:
 Configuring MASTER (latest v1.3.2)
+  - Create keepalived.conf in /etc/keepalived/
+  - See below for general configuration (and sample keepalived_master.conf file):
+  ```
+global_defs {
+  router_id yourhostname
+  script_user root root #enable this if you don't want to create new user like manual wants
+}
 
+vrrp_script chk_pihole {
+  script "/usr/local/bin/pihole status | grep Enabled"
+  interval 5
+}
+
+vrrp_instance VI_1 {
+  interface eth0 #interface bound to keepalived (vrrp messages)
+  state MASTER
+  virtual_router_id 51
+  priority 110
+  unicast_src_ip 192.168.0.101 #your MASTER IP
+
+  unicast_peer {
+    192.168.0.105 #your BACKUP IP
+  }
+
+  virtual_ipaddress {
+    192.168.0.111/24 #your shared VIP
+  }
+
+  track_script {
+    chk_pihole
+  }
+
+  notify /etc/keepalived/notify_script.sh
+}
+  ```
