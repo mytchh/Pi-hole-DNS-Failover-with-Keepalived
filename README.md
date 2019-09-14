@@ -1,11 +1,11 @@
 # Pi-hole-DNS-Failover-with-Keepalived
 #Probably out-dated and does not apply for normal people
 
-#Please check the comit dates, package versions, and distros used
+#Please check the commit dates, package versions, and distros used
 
-#Date of first comit is 09/13/2019
+#Date of first commit is 09/13/2019
 
-This assumes you have two seperate points of failure, Pi-hole is installed (or know how to easily), and already generally understand the requirements of pi-hole, keepalived, routing/firewall rules, permissions, etc.
+This guide will offer "true" high availabilty and automatic failover with no delay in DNS resolves. This differs from most tutorials, which will not tell you the real-life outcome of using a single VIP for DNS. The key here is that we will manually allow Pi-hole DHCP server to provide a secondary DNS server, which is not configurable through GUI. The result is gapless changeover for most clients. It is assumed you have two seperate points of failure, Pi-hole is installed (or know how to easily), and already generally understand the requirements of pi-hole, keepalived, routing/firewall rules, permissions, etc.
 
 This guide will use two pi-hole (ad blocking DNS) servers in two different environments. In this case:
   - MASTER = Raspberry Pi 3 Model B+ running Raspbian 9 (Stetch) Kernel v4.19.66
@@ -63,6 +63,7 @@ CONFIGURING BACKUP (Docker official)
   
 # Keepalived Setup:
 Configuring MASTER (latest v1.3.2)
+  - Install libipset3
   - Create keepalived.conf in /etc/keepalived/
   - See below for general configuration (and sample keepalived_master.conf):
 ```
